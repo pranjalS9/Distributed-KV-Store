@@ -33,4 +33,13 @@ public class EncoderTest {
         assertArrayEquals(new byte[]{0, 0, 0, 4}, Arrays.copyOfRange(encodedMessage, 8, 12));
         assertArrayEquals("name".getBytes(), Arrays.copyOfRange(encodedMessage, 12, 16));
     }
+
+    @Test
+    void shouldEncodeValueCorrectly() {
+        RawMessage rawMessage = new RawMessage(1L, "name".getBytes(), "Pranjal".getBytes());
+        byte[] encodedMessage = Encoder.encode(rawMessage);
+
+        assertArrayEquals(new byte[]{0, 0, 0, 7}, Arrays.copyOfRange(encodedMessage, 16, 20));
+        assertArrayEquals("Pranjal".getBytes(), Arrays.copyOfRange(encodedMessage, 20, 27));
+    }
 }
