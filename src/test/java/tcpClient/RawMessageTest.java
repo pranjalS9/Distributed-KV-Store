@@ -14,4 +14,11 @@ public class RawMessageTest {
         assertArrayEquals("name".getBytes(), rawMessage.getKey());
         assertArrayEquals("Pranjal".getBytes(), rawMessage.getValue());
     }
+
+    @Test
+    void shouldAllowNullAsAValue() {
+        RawMessage rawMessage = new RawMessage(1L, "name".getBytes(), null);
+
+        assertNull(rawMessage.getValue());
+    }
 }
