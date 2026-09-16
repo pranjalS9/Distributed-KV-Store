@@ -12,9 +12,11 @@ public class Decoder {
         buffer.get(key);
 
         int valueLen = buffer.getInt();
-        byte[] value = new byte[valueLen];
-        buffer.get(value);
-
+        byte[] value = null;
+        if(valueLen > 0) {
+            value = new byte[valueLen];
+            buffer.get(value);
+        }
         return new RawMessage(reqId, key, value);
     }
 }

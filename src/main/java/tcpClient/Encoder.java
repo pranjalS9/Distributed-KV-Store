@@ -6,7 +6,7 @@ public class Encoder {
     public static byte[] encode(RawMessage rawMessage) {
         long reqId = rawMessage.getReqId();
         byte[] key = rawMessage.getKey();
-        byte[] value = rawMessage.getValue();
+        byte[] value = rawMessage.getValue() != null ? rawMessage.getValue() : new byte[0];
 
         int encodedMessageLength = 8 + 4 + key.length + 4 + value.length;
         ByteBuffer buffer = ByteBuffer.allocate(encodedMessageLength); //ByteBuffer defaults to big-endian
