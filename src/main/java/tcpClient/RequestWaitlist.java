@@ -11,4 +11,13 @@ public class RequestWaitlist {
         waitlist.put(reqId, future);
         return future;
     }
+
+    public void complete(long reqId, RawMessage rawMessage) {
+        CompletableFuture<RawMessage> future = waitlist.get(reqId);
+
+        if(future != null) {
+            waitlist.remove(reqId);
+            future.complete(rawMessage);
+        }
+    }
 }
