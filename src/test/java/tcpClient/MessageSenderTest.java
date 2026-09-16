@@ -20,5 +20,6 @@ public class MessageSenderTest {
         byte[] writtenMessage = outputStream.toByteArray();
 
         assertArrayEquals(new byte[]{0, 0, 0, 27}, Arrays.copyOfRange(writtenMessage, 0, 4));
+        assertArrayEquals(encodedMessage, Arrays.copyOfRange(writtenMessage, 4, writtenMessage.length));
     }
 }
