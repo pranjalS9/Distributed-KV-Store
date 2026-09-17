@@ -12,7 +12,7 @@ public class MessageReaderTest {
 
     @Test
     void shouldReadExactMessageBytesAfterLengthPrefix() throws IOException {
-        RawMessage rawMessage = new RawMessage(1L, "name".getBytes(), "Pranjal".getBytes());
+        RawMessage rawMessage = new RawMessage(1L, "ok".getBytes(), null);
         byte[] encodedMessage = Encoder.encode(rawMessage);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -28,7 +28,7 @@ public class MessageReaderTest {
     @Test
     void shouldProperlyReadMultipleMessages() throws IOException {
         RawMessage rawMessage1 = new RawMessage(1L, "name".getBytes(), "Pranjal".getBytes());
-        RawMessage rawMessage2 = new RawMessage(1L, "age".getBytes(), "23".getBytes());
+        RawMessage rawMessage2 = new RawMessage(1L, "ok".getBytes(), null);
 
         byte[] encodedMessage1 = Encoder.encode(rawMessage1);
         byte[] encodedMessage2 = Encoder.encode(rawMessage2);
