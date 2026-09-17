@@ -1,10 +1,10 @@
 package tcpClient;
 
-import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestWaitlist {
-    private final HashMap<Long, CompletableFuture<RawMessage>> waitlist = new HashMap<>();
+    private final ConcurrentHashMap<Long, CompletableFuture<RawMessage>> waitlist = new ConcurrentHashMap<>();
 
     public CompletableFuture<RawMessage> register(long reqId) {
         CompletableFuture<RawMessage> future = new CompletableFuture<>();
