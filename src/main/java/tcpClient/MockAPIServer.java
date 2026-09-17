@@ -22,12 +22,7 @@ public class MockAPIServer {
             try {
                 while(!serverSocket.isClosed()) {
                     Socket socket = serverSocket.accept();
-                    new Thread(() -> {
-                        try {
-                            handleConnection(socket);
-                        }
-                        catch (IOException ignored) {}
-                    }).start();
+                    new Thread(() -> handleConnection(socket)).start();
                 }
             } catch (IOException ignored) {}
         });
@@ -39,16 +34,22 @@ public class MockAPIServer {
         serverSocket.close();
     }
 
-    private void handleConnection(Socket socket) throws IOException {
-        byte[] encodedMessage = MessageReader.read(socket.getInputStream());
-        RawMessage rawMessage = Decoder.decode(encodedMessage);
+    private void handleConnection(Socket socket) {
+        try (socket) {
+            while (true) {
+                byte[] encodedMessage = MessageReader.read(socket.getInputStream());
+                RawMessage rawMessage = Decoder.decode(encodedMessage);
 
-        store.put(Arrays.toString(rawMessage.getKey()), rawMessage.getValue());
+                store.put(Arrays.toString(rawMessage.getKey()), rawMessage.getValue());
 
-        RawMessage response = new RawMessage(rawMessage.getReqId(), "ok".getBytes(), null);
-        byte[] encodedResponse = Encoder.encode(response);
-        MessageSender.send(socket.getOutputStream(), encodedResponse);
+                RawMessage response = new RawMessage(rawMessage.getReqId(), "ok".getBytes(), null);
+                byte[] encodedResponse = Encoder.encode(response);
+                MessageSender.send(socket.getOutputStream(), encodedResponse);
+            }
+        } catch (IOException ignored) { }
+    }
 
-        socket.close();
+    public int getPort() {
+        return serverSocket.getLocalPort();
     }
 }
