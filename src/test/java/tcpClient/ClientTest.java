@@ -23,4 +23,25 @@ public class ClientTest {
 
         server.stop();
     }
+
+    @Test
+    void shouldHandleMultipleSequentialPutsOnSameConnection() throws IOException, ExecutionException, InterruptedException {
+        MockAPIServer server = new MockAPIServer(0);
+        server.start();
+
+        Client client = new Client("localhost", server.getPort());
+        CompletableFuture<RawMessage> future1 = client.put("name".getBytes(), "Pranjal".getBytes());
+        CompletableFuture<RawMessage> future2 = client.put("age".getBytes(), "21".getBytes());
+
+        RawMessage response1 = future1.get();
+        RawMessage response2 = future2.get();
+
+        assertNotNull(response1);
+        assertNotNull(response2);
+
+        assertArrayEquals("ok".getBytes(), response1.getKey());
+        assertArrayEquals("ok".getBytes(), response2.getKey());
+
+        server.stop();
+    }
 }
