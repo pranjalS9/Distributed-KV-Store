@@ -3,8 +3,9 @@ package tcpClient;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,5 +44,37 @@ public class ClientTest {
         assertArrayEquals("ok".getBytes(), response2.getKey());
 
         server.stop();
+    }
+
+    @Test
+    void shouldHandleConcurrentPutsOnSameConnection() throws ExecutionException, InterruptedException, IOException {
+        MockAPIServer server = new MockAPIServer(0);
+        server.start();
+
+        Client client = new Client("localhost", server.getPort());
+        int count = 10;
+
+        List<CompletableFuture<RawMessage>> futures = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(count);
+        CountDownLatch latch = new CountDownLatch(count);
+
+        for(int i = 0; i < count; i++) {
+            executorService.submit(() -> {
+                try {
+                    futures.add(client.put("name".getBytes(), "Pranjal".getBytes()));
+                    latch.countDown();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        latch.await();
+
+        for(int i = 0; i < count; i++) {
+            RawMessage response = futures.get(i).get();
+            assertNotNull(response);
+            assertArrayEquals("ok".getBytes(), response.getKey());
+        }
+        executorService.shutdown();
     }
 }
