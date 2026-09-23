@@ -3,6 +3,7 @@ package tcpClient;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -76,5 +77,20 @@ public class ClientTest {
             assertArrayEquals("ok".getBytes(), response.getKey());
         }
         executorService.shutdown();
+    }
+
+    @Test
+    void shouldFailWithTimeoutExceptionWhenServerDoesNotRespond() throws IOException {
+        ServerSocket silentServer = new ServerSocket(0);
+        new Thread(() -> {
+            try { silentServer.accept(); } catch (IOException ignored) {}
+        }).start();
+
+        Client client = new Client("localhost", silentServer.getLocalPort(), 100); // 100ms timeout
+        CompletableFuture<RawMessage> future = client.put("name".getBytes(), "Pranjal".getBytes());
+
+        assertThrows(ExecutionException.class, future::get); // future completes exceptionally
+
+        silentServer.close();
     }
 }
