@@ -52,7 +52,7 @@ public class ClientTest {
         MockAPIServer server = new MockAPIServer(0);
         server.start();
 
-        Client client = new Client("localhost", server.getPort());
+        Client client = new Client("localhost", server.getPort(), 10000);
         int count = 10;
 
         List<CompletableFuture<RawMessage>> futures = new ArrayList<>();

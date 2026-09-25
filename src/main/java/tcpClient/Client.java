@@ -25,10 +25,14 @@ public class Client {
         connectionReader.start();
     }
 
-    public CompletableFuture<RawMessage> put(byte[] key, byte[] value) throws IOException {
+    public synchronized CompletableFuture<RawMessage> put(byte[] key, byte[] value) throws IOException {
         long reqId = reqIdCounter.incrementAndGet();
         CompletableFuture<RawMessage> future = waitlist.register(reqId);
-        scheduler.schedule(() -> future.completeExceptionally(new TimeoutException()), timeoutMs, TimeUnit.MILLISECONDS);
+        scheduler.schedule(() -> {
+            if (!future.isDone()) {
+                future.completeExceptionally(new TimeoutException());
+            }
+        }, timeoutMs, TimeUnit.MILLISECONDS);
         MessageSender.send(socket.getOutputStream(), Encoder.encode(new RawMessage(reqId, key, value)));
         return future;
     }
